@@ -1,7 +1,10 @@
 void function(global,Doc){
     var o_ = global._
         ,oClub = global.club
+        ,IE9 = Doc.dispatchEvent
+        ,ap = Array.prototype
         ,op = Object.prototype
+        ,slice = ap.slice
         ,hasOwn = op.hasOwnProperty;
  	/**
 	 * 主构造函数
@@ -44,8 +47,34 @@ void function(global,Doc){
    _.mixIn(_,{
       //当前版本号    
       version : '1.0'
-      ,
-
+      ,makeArray : function(iterable,start,end){
+          if(IE9){
+               return slice.call(iterable,start,end);
+            }else{
+               if(iterable.item){
+                   var ret = []
+                    ,len = iterable.length
+                    ,i,s;
+                    start = parseInt(start,10) || 0;
+                    end = end == null? len : parseInt(end,10);
+                    if(start<0){
+                       start = 0;     
+                    }
+                    if(end>len){
+                       end = len;
+                    }
+                    if(end<0){
+                       end = 0;
+                    }
+                    start > end ? s = end : s = start;
+                    for(i = s; i < len; i++){
+                      ret[i-s] = iterable[i];
+                    }
+                  return ret;
+              }
+           }
+      }
+      
 
    }) 
  
