@@ -137,7 +137,36 @@
                class2type[ oToString.call(obj) ] || 'object' :
                typeof obj;    
       }
-      //冲突处理
+      /**
+       * 绑定事件(简化版)
+       * @param {Node|Document|window} el 触发者
+       * @param {String} type 事件类型
+       * @param {Function} callback 回调
+       */
+      ,addHandler : function(el, type, callback){
+            if(el.addEventListener){
+                el.addEventListener(type, callback, false);
+            }else if(el.attachEvent){
+                el.attachEvent('on'+type, callback);
+            }else{
+                el['on' + type] = callback;
+            }
+      }
+      /**
+       * 卸载事件(简化版)
+       * @param {Node|Document|window} el 触发者
+       * @param {String} type 事件类型
+       */
+      ,removeHandler : function(el, type, callback){
+            if(el.removeEventListener){
+                 el.removeEventListener(type, callback, false);
+            }else if(el.detachEvent){
+                 el.detachEvent('on' + type, callback);
+            }else{
+                 el['on' + type] = null; 
+            } 
+      }
+      /*冲突处理*/
       ,noConflict : function(){
          global._ = o_;
          return this; 
@@ -146,8 +175,35 @@
    }) 
  
 
+  /**
+   *   domReady 
+   *  
+   *
+   */
+  var readyList = []
+      ,ready = IE9 ? 'DOMContentLoaded' : 'readystatechange';
+  //fn插入ready队列中
+  _.ready = function(fn){
+      if(readyList){
+         readyList.push(fn);
+      }else{
+         fn();
+      }
+  }
+
+  function fireRy(){
 
 
+  }
+  //当DOM加载完成
+  if(Doc.readyState === 'complete'){
+      fireRy();
+  }else{
+      _.addHandler(Doc, ready, function(){
+        
+         
+      });
+  }
 
 
      
@@ -162,4 +218,4 @@
  
       global._ = global.club = _;						
 
-}).apply(this)
+}).call(this)
