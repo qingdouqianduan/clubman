@@ -1,13 +1,23 @@
 //    clubman.js 1.0
 (function(){
     var global = this
+
         ,o_ = global._  
+
         ,Doc = global.document
+
+        ,html = Doc.documentElement
+
         ,IE9 = Doc.dispatchEvent
+
         ,ap = Array.prototype
+
         ,op = Object.prototype
+
         ,slice = ap.slice
+
         ,hasOwn = op.hasOwnProperty
+
         ,class2type = {
           '[object Boolean]': 'boolean'
           ,'[object Number]': 'number'
@@ -19,6 +29,7 @@
           ,'[object Object]': 'object'
           ,'[object Error]': 'error'
         }
+
         ,oToString = class2type.toString
         ;
 
@@ -59,6 +70,7 @@
     }	 
     /**
      * 核心模块添加
+     * 为club 添加静态方法 
      */   
      _.mixIn(_,{
         //当前版本号    
@@ -166,6 +178,11 @@
                  el['on' + type] = null; 
             } 
       }
+      /**
+       * 一个空函数
+       */ 
+      ,noop : function(){
+      }
       /*冲突处理*/
       ,noConflict : function(){
          global._ = o_;
@@ -175,11 +192,8 @@
    }) 
  
 
-  /**
-   *   domReady 
-   *  
-   *
-   */
+  // ===================DOMReady======================
+
   var readyList = []
       ,ready = IE9 ? 'DOMContentLoaded' : 'readystatechange';
   //fn插入ready队列中
@@ -190,19 +204,45 @@
          fn();
       }
   }
-
+  //ready 事件触发fn 队列
   function fireRy(){
-
-
+      for(var i = 0, fn;fn = readyList[i++];){
+           fn();
+      }  
+           readyList = null;
+           fireRy = _.noop; 
   }
+  //ie doScroll hack 检测是否成功
+  function doScrollCheck(){
+       try{ //ie 下检测是否doScroll success
+          html.doScroll('left');
+          fireRy();
+       }catch(e){
+          setTimeout(doScrollCheck);
+       }
+  }  
   //当DOM加载完成
   if(Doc.readyState === 'complete'){
       fireRy();
   }else{
+  //绑定ready 事件
       _.addHandler(Doc, ready, function(){
-        
-         
+        if(IE9 || Doc.readyState === 'complete'){
+            fireRy();
+            if(!IE9){//ie9不能改写Doc.readyState
+               Doc.readyState = 'complete';
+            }
+        }        
       });
+      if( html.doScroll ){
+          try{
+              if(self.eval === parent.eval){
+                 doScrollCheck();    
+              }  
+          }catch(e){
+                 doScrollCheck(); 
+          }
+      }
   }
 
 
